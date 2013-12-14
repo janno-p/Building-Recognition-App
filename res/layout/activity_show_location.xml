@@ -10,15 +10,18 @@
             android:layout_height="match_parent"
             tilesource="Mapnik"/>
     <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="You are at \n..."
             android:gravity="center"
             android:id="@+id/textView"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="122dp"/>
+            android:layout_margin="15dp"
+            android:background="@android:color/darker_gray"
+            android:padding="5dp" android:clickable="false" android:textStyle="bold"
+            android:singleLine="false" android:alpha="0.5"
+            android:textColor="@android:color/black"/>
     <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -28,8 +31,8 @@
             android:id="@+id/button"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="42dp"
-            android:layout_marginBottom="39dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginBottom="15dp"
             android:onClick="onNo"/>
     <Button
             android:layout_width="wrap_content"
@@ -40,5 +43,5 @@
             android:id="@+id/button2"
             android:layout_alignTop="@+id/button"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="37dp"/>
+            android:layout_marginRight="15dp"/>
 </RelativeLayout>
