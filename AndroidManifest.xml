@@ -10,7 +10,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.ShowLocationActivity"/>
-        <activity android:name=".SelectLocationActivity"/>
+        <activity android:name=".activities.EditLocationActivity"/>
     </application>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>

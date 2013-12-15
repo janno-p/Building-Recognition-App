@@ -7,13 +7,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.MenuInflater;
+import android.view.KeyEvent;
 import android.view.View;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 import com.github.jannop.buildingrecognition.LocationTracker;
 import com.github.jannop.buildingrecognition.R;
-import com.github.jannop.buildingrecognition.SelectLocationActivity;
 import com.github.jannop.buildingrecognition.tasks.BuildingInfoListener;
 import com.github.jannop.buildingrecognition.tasks.DetectBuildingTask;
 import org.osmdroid.bonuspack.overlays.Polygon;
@@ -31,6 +29,8 @@ public class ShowLocationActivity extends Activity implements BuildingInfoListen
     private TextView txtLocation;
     private MapView mapView;
 
+    private boolean selectionModeEnabled = false;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_location);
@@ -38,6 +38,9 @@ public class ShowLocationActivity extends Activity implements BuildingInfoListen
         mapView = (MapView)findViewById(R.id.mapView);
         mapView.getController().setZoom(16);
         mapView.setMultiTouchControls(true);
+
+        // TODO : Show progress bar to notify about background work
+
         LocationTracker tracker = new LocationTracker(this);
         if (tracker.isLocationAcquirable()) {
             new DetectBuildingTask(this).execute(tracker.getLocation());
@@ -47,20 +50,34 @@ public class ShowLocationActivity extends Activity implements BuildingInfoListen
     }
 
     public void showMenu(View view) {
-        //Intent intent = new Intent(getApplicationContext(), SelectLocationActivity.class);
-        //startActivity(intent);
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Selected Building");
         builder.setItems(R.array.show_location_menu_items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                // The 'which' argument contains the index position
-                // of the selected item
+                if (which == 0) {
+                    Intent intent = new Intent(getApplicationContext(), EditLocationActivity.class);
+                    startActivity(intent);
+                }
+                if (which == 2) {
+                    selectionModeEnabled = true;
+                    // TODO : Enable location selection
+                }
             }
         });
         builder.setInverseBackgroundForced(true);
         builder.create();
         builder.show();
+    }
+
+    @Override
+    public boolean onKeyDown(int keycode, KeyEvent e) {
+        switch(keycode) {
+            case KeyEvent.KEYCODE_MENU:
+                showMenu(null);
+                return true;
+        }
+
+        return super.onKeyDown(keycode, e);
     }
 
     @Override
