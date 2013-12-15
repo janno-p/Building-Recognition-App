@@ -1,6 +1,7 @@
 package com.github.jannop.buildingrecognition;
 
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,28 +12,8 @@ import android.provider.Settings;
 import org.osmdroid.util.GeoPoint;
 
 public class LocationTracker {
-    private final Context context;
-    private final LocationManager locationManager;
+    /*public GeoPoint getLocation() {
 
-    public LocationTracker(Context context) {
-        this.context = context;
-        this.locationManager = (LocationManager)context.getSystemService(Service.LOCATION_SERVICE);
-    }
-
-    public GeoPoint getLocation() {
-        try {
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                return new GeoPoint(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
-            }
-
-            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                return new GeoPoint(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
 
     public boolean isLocationAcquirable() {
@@ -58,5 +39,5 @@ public class LocationTracker {
             }
         });
         alertDialog.show();
-    }
+    }*/
 }

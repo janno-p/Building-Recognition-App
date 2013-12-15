@@ -1,6 +1,7 @@
 package com.github.jannop.buildingrecognition.tasks;
 
 import android.os.AsyncTask;
+import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,22 +35,21 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, JSONObject> {
 
     @Override
     protected void onPostExecute(JSONObject result) {
-        if (result == null)
-            return;
-
         listener.updateAddress(getAddressString(result));
 
         ArrayList<GeoPoint> points = new ArrayList<GeoPoint>();
-        JSONArray array = getArrayProperty(result, "building_nodes");
-        if (array == null)
-            return;
 
-        for (int i = 0; i < array.length(); i++) {
-            try {
-                JSONArray vector = array.getJSONArray(i);
-                points.add(new GeoPoint(vector.getDouble(0), vector.getDouble(1)));
-            } catch (JSONException e) {
-                continue;
+        if (result != null) {
+            JSONArray array = getArrayProperty(result, "building_nodes");
+            if (array != null) {
+                for (int i = 0; i < array.length(); i++) {
+                    try {
+                        JSONArray vector = array.getJSONArray(i);
+                        points.add(new GeoPoint(vector.getDouble(0), vector.getDouble(1)));
+                    } catch (JSONException e) {
+                        continue;
+                    }
+                }
             }
         }
 
@@ -63,6 +63,7 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, JSONObject> {
     }
 
     private URL getUrlFromString() {
+        Log.d("##########GETURL", "#############GETURL");
         try {
             return new URL(getAddress());
         } catch (MalformedURLException e) {
@@ -71,9 +72,12 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, JSONObject> {
     }
 
     private String getInputStream(URL url) {
+        Log.d("##########GETINPUTSTR", "#############GETINPUTSTR");
         try {
             URLConnection connection = url.openConnection();
-            connection.connect();
+            //connection.connect();
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
             InputStream stream = connection.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
             StringBuilder sb = new StringBuilder();
@@ -88,6 +92,7 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, JSONObject> {
     }
 
     private JSONObject decodeObject(String jsonContent) {
+        Log.d("##########DECODE", "#############DECODE");
         if (jsonContent != null) {
             try {
                 return new JSONObject(jsonContent);
@@ -98,6 +103,9 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, JSONObject> {
     }
 
     private String getAddressString(JSONObject building) {
+        Log.d("##########ADDSTR", "#############ADDSTR");
+        if (building == null)
+            return null;
         StringBuilder sb = new StringBuilder();
         String streetName = getStringProperty(building, "addr:street");
         if (streetName != null)

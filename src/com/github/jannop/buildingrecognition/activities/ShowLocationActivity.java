@@ -2,11 +2,15 @@ package com.github.jannop.buildingrecognition.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -14,6 +18,7 @@ import com.github.jannop.buildingrecognition.LocationTracker;
 import com.github.jannop.buildingrecognition.R;
 import com.github.jannop.buildingrecognition.tasks.BuildingInfoListener;
 import com.github.jannop.buildingrecognition.tasks.DetectBuildingTask;
+import com.github.jannop.buildingrecognition.tasks.DetectLocationTask;
 import org.osmdroid.bonuspack.overlays.Polygon;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -26,27 +31,31 @@ public class ShowLocationActivity extends Activity implements BuildingInfoListen
     //private final GeoPoint testLocation = new GeoPoint(59.402474, 24.69505);
     //private final GeoPoint testLocation = new GeoPoint(59.40298, 24.69381);
     //private final GeoPoint testLocation = new GeoPoint(59.40364, 24.69097);
+
     private TextView txtLocation;
     private MapView mapView;
+    private ProgressDialog progressDialog;
+    private Location location;
 
     private boolean selectionModeEnabled = false;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_location);
+
         txtLocation = (TextView)findViewById(R.id.txtLocation);
+
         mapView = (MapView)findViewById(R.id.mapView);
         mapView.getController().setZoom(16);
         mapView.setMultiTouchControls(true);
 
-        // TODO : Show progress bar to notify about background work
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Detecting location");
+        progressDialog.setCancelable(false);
+        progressDialog.setIndeterminate(true);
+        progressDialog.show();
 
-        LocationTracker tracker = new LocationTracker(this);
-        if (tracker.isLocationAcquirable()) {
-            new DetectBuildingTask(this).execute(tracker.getLocation());
-        } else {
-            tracker.showSettingsAlert();
-        }
+        new DetectLocationTask(this).execute();
     }
 
     public void showMenu(View view) {
@@ -82,11 +91,13 @@ public class ShowLocationActivity extends Activity implements BuildingInfoListen
 
     @Override
     public void updateAddress(String address) {
+        Log.d("#########UPDATEADDRESS", "#############UPDATEADDRESS");
         txtLocation.setText("Current Location: " + (address == null || address.isEmpty() ? "Unknown" : address));
     }
 
     @Override
     public void updateMap(GeoPoint location, ArrayList<GeoPoint> building) {
+        Log.d("#########UPDATEMAP", "#############UPDATEMAP");
         mapView.getOverlays().clear();
 
         if (building != null && building.size() > 0) {
@@ -103,7 +114,7 @@ public class ShowLocationActivity extends Activity implements BuildingInfoListen
 
             mapView.getOverlays().add(path);
         }
-
+        Log.d("#########ANIMATETO", "#############ANIMATETO");
         if (location != null) {
             mapView.getController().animateTo(location);
 
@@ -128,5 +139,19 @@ public class ShowLocationActivity extends Activity implements BuildingInfoListen
                     });
             this.mapView.getOverlays().add(currentLocationOverlay);
         }
+
+        Log.d("#########DISMISS", "#############DISMISS");
+        progressDialog.dismiss();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+        progressDialog.setMessage("Identifying current building");
+        new DetectBuildingTask(this).execute(new GeoPoint(location));
     }
 }
