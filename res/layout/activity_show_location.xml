@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+    <RelativeLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#31a9ff"
+            android:gravity="center">
+
+        <Button
+                android:text="Menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnMenu"
+                android:layout_alignParentRight="true"
+                android:onClick="showMenu"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current Location: Unknown"
+                android:gravity="center"
+                android:id="@+id/txtLocation"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="0dp"
+                android:padding="5dp"
+                android:clickable="false"
+                android:textStyle="bold"
+                android:singleLine="false"
+                android:textColor="@android:color/white"
+                android:layout_toLeftOf="@id/btnMenu"/>
+    </RelativeLayout>
 
     <org.osmdroid.views.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_below="@id/header"
             tilesource="Mapnik"/>
-    <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="You are at \n..."
-            android:gravity="center"
-            android:id="@+id/textView"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="15dp"
-            android:background="@android:color/darker_gray"
-            android:padding="5dp" android:clickable="false" android:textStyle="bold"
-            android:singleLine="false" android:alpha="0.5"
-            android:textColor="@android:color/black"/>
-    <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
-            android:text="No"
-            android:id="@+id/button"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="15dp"
-            android:layout_marginBottom="15dp"
-            android:onClick="onNo"/>
-    <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
-            android:text="Go to Building Wiki"
-            android:id="@+id/button2"
-            android:layout_alignTop="@+id/button"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="15dp"/>
+
 </RelativeLayout>
