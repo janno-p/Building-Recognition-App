@@ -3,14 +3,12 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
     <RelativeLayout
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#31a9ff"
             android:gravity="center">
-
         <Button
                 android:text="Menu"
                 android:layout_width="wrap_content"
@@ -18,7 +16,6 @@
                 android:id="@+id/btnMenu"
                 android:layout_alignParentRight="true"
                 android:onClick="showMenu"/>
-
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -36,12 +33,19 @@
                 android:textColor="@android:color/white"
                 android:layout_toLeftOf="@id/btnMenu"/>
     </RelativeLayout>
-
     <org.osmdroid.views.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/header"
             tilesource="Mapnik"/>
-
+    <Button
+            android:id="@+id/btnReady"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:text="Ready"
+            android:enabled="false"
+            android:visibility="invisible"/>
 </RelativeLayout>

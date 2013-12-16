@@ -6,4 +6,7 @@
         <item>Open Wiki (App 2)</item>
         <item>Choose Another</item>
     </string-array>
+    <string-array name="select_location_menu_items">
+        <item>Detect Location</item>
+    </string-array>
 </resources>

@@ -1,7 +1,8 @@
 package com.github.jannop.buildingrecognition.tasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
+import com.github.jannop.buildingrecognition.BuildingDetails;
+import com.github.jannop.buildingrecognition.activities.ShowLocationActivity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,66 +17,78 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
-public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, JSONObject> {
-    private final BuildingInfoListener listener;
+public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, BuildingDetails> {
+    private final ShowLocationActivity activity;
 
-    private GeoPoint position;
-
-    public DetectBuildingTask(BuildingInfoListener listener) {
-        this.listener = listener;
+    public DetectBuildingTask(ShowLocationActivity activity) {
+        this.activity = activity;
     }
 
     @Override
-    protected JSONObject doInBackground(GeoPoint... params) {
-        position = params[0];
-        return position != null
-                ? decodeObject(getInputStream(getUrlFromString()))
-                : null;
+    protected BuildingDetails doInBackground(GeoPoint... params) {
+        GeoPoint location = params[0];
+
+        String address = getAddress(location);
+        URL url = getUrlFromString(address);
+
+        JSONObject details = location != null ? decodeObject(getInputStream(url)) : null;
+
+        return parseBuildingDetails(details);
     }
 
     @Override
-    protected void onPostExecute(JSONObject result) {
-        listener.updateAddress(getAddressString(result));
+    protected void onPostExecute(BuildingDetails building) {
+        activity.completeBuildingDetection(building);
+    }
+
+    private static BuildingDetails parseBuildingDetails(JSONObject details) {
+        if (details == null) {
+            return null;
+        }
 
         ArrayList<GeoPoint> points = new ArrayList<GeoPoint>();
 
-        if (result != null) {
-            JSONArray array = getArrayProperty(result, "building_nodes");
+        if (details != null) {
+            JSONArray array = getArrayProperty(details, "building_nodes");
             if (array != null) {
                 for (int i = 0; i < array.length(); i++) {
                     try {
                         JSONArray vector = array.getJSONArray(i);
                         points.add(new GeoPoint(vector.getDouble(0), vector.getDouble(1)));
                     } catch (JSONException e) {
-                        continue;
                     }
                 }
             }
         }
 
-        listener.updateMap(position, points);
+        if (points.size() < 1) {
+            return null;
+        }
+
+        BuildingDetails buildingDetails = new BuildingDetails();
+        buildingDetails.address = getAddressString(details);
+        buildingDetails.polygon = points;
+
+        return buildingDetails;
     }
 
-    private String getAddress() {
+    private static String getAddress(GeoPoint location) {
         return "http://bldrecog.appspot.com/check_location?"
-                + "lat=" + position.getLatitude()
-                + "&lon=" + position.getLongitude();
+                + "lat=" + location.getLatitude()
+                + "&lon=" + location.getLongitude();
     }
 
-    private URL getUrlFromString() {
-        Log.d("##########GETURL", "#############GETURL");
+    private static URL getUrlFromString(String address) {
         try {
-            return new URL(getAddress());
+            return new URL(address);
         } catch (MalformedURLException e) {
             return null;
         }
     }
 
-    private String getInputStream(URL url) {
-        Log.d("##########GETINPUTSTR", "#############GETINPUTSTR");
+    private static String getInputStream(URL url) {
         try {
             URLConnection connection = url.openConnection();
-            //connection.connect();
             connection.setConnectTimeout(10000);
             connection.setReadTimeout(10000);
             InputStream stream = connection.getInputStream();
@@ -83,7 +96,7 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, JSONObject> {
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
+                sb.append(line).append("\n");
             }
             return sb.toString();
         } catch (IOException e) {
@@ -91,8 +104,7 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, JSONObject> {
         }
     }
 
-    private JSONObject decodeObject(String jsonContent) {
-        Log.d("##########DECODE", "#############DECODE");
+    private static JSONObject decodeObject(String jsonContent) {
         if (jsonContent != null) {
             try {
                 return new JSONObject(jsonContent);
@@ -102,8 +114,7 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, JSONObject> {
         return null;
     }
 
-    private String getAddressString(JSONObject building) {
-        Log.d("##########ADDSTR", "#############ADDSTR");
+    private static String getAddressString(JSONObject building) {
         if (building == null)
             return null;
         StringBuilder sb = new StringBuilder();
@@ -122,7 +133,7 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, JSONObject> {
         return sb.toString();
     }
 
-    private String getStringProperty(JSONObject building, String propertyName) {
+    private static String getStringProperty(JSONObject building, String propertyName) {
         try {
             if (building.has(propertyName))
                 return building.getString(propertyName);
@@ -131,7 +142,7 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, JSONObject> {
         return null;
     }
 
-    private JSONArray getArrayProperty(JSONObject building, String propertyName) {
+    private static JSONArray getArrayProperty(JSONObject building, String propertyName) {
         try {
             if (building.has(propertyName))
                 return building.getJSONArray(propertyName);

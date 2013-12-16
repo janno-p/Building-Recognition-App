@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import com.github.jannop.buildingrecognition.activities.ShowLocationActivity;
+import org.osmdroid.util.GeoPoint;
 
 public class DetectLocationTask extends AsyncTask<Void, Void, Location> implements LocationListener {
     private final ShowLocationActivity activity;
@@ -59,7 +60,8 @@ public class DetectLocationTask extends AsyncTask<Void, Void, Location> implemen
 
     @Override
     protected void onPostExecute(Location result) {
-        activity.setLocation(result);
+        GeoPoint location = result != null ? new GeoPoint(result) : null;
+        activity.completeLocationDetection(location);
     }
 
     @Override
