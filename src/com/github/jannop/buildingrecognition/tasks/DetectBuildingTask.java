@@ -48,6 +48,8 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, BuildingDetail
             return null;
         }
 
+        long buildingId = getLongProperty(details, "building_id");
+
         ArrayList<GeoPoint> points = new ArrayList<GeoPoint>();
 
         if (details != null) {
@@ -70,6 +72,7 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, BuildingDetail
         BuildingDetails buildingDetails = new BuildingDetails();
         buildingDetails.address = getAddressString(details);
         buildingDetails.polygon = points;
+        buildingDetails.id = buildingId;
 
         return buildingDetails;
     }
@@ -133,6 +136,15 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, BuildingDetail
         if (countryCode != null)
             sb.append((sb.length() > 0 ? " " : "") + "(" + countryCode + ")");
         return sb.toString();
+    }
+
+    private static long getLongProperty(JSONObject building, String propertyName) {
+        try {
+            if (building.has(propertyName))
+                return building.getLong(propertyName);
+        } catch (JSONException e) {
+        }
+        return 0;
     }
 
     private static String getStringProperty(JSONObject building, String propertyName) {

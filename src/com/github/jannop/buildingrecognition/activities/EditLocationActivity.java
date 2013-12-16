@@ -1,12 +1,16 @@
 package com.github.jannop.buildingrecognition.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.github.jannop.buildingrecognition.BuildingDetails;
 import com.github.jannop.buildingrecognition.R;
+import com.github.jannop.buildingrecognition.tasks.SaveBuildingTagTask;
 
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -14,6 +18,7 @@ import java.net.URL;
 
 public class EditLocationActivity extends Activity {
     private BuildingDetails building;
+    private String username;
 
     private EditText editBuildingName;
 
@@ -22,8 +27,10 @@ public class EditLocationActivity extends Activity {
         setContentView(R.layout.activity_edit_location);
 
         building = (BuildingDetails)getIntent().getSerializableExtra("building");
+        username = getIntent().getStringExtra("username");
 
         editBuildingName = (EditText)findViewById(R.id.editBuildingName);
+        editBuildingName.setText(building.name);
 
         TextView txtAddress = (TextView)findViewById(R.id.txtAddress);
         txtAddress.setText(building.address);
@@ -40,42 +47,34 @@ public class EditLocationActivity extends Activity {
 
     public void onSave(View view) {
         editBuildingName.setEnabled(false);
-        try {
-            URL url = new URL("http://bldrecog.appspot.com/addtag");
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setDoOutput(true);
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setUseCaches(false);
-            urlConnection.setConnectTimeout(10000);
-            urlConnection.setReadTimeout(10000);
-            urlConnection.setRequestProperty("Content-Type", "text/plain");
-            urlConnection.connect();
+        building.name = editBuildingName.getText().toString();
+        new SaveBuildingTagTask(this).execute(building, username);
+    }
 
-            OutputStreamWriter out = new OutputStreamWriter(urlConnection.getOutputStream());
-            out.write("username=&building=&name=");
-            out.close();
-
-            /*
-            int HttpResult = urlConnection.getResponseCode();
-            if (HttpResult == HttpURLConnection.HTTP_OK){
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        urlConnection.getInputStream(),"utf-8"));
-                String line = null;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line + "\n");
-                }
-                br.close();
-
-                System.out.println(""+sb.toString());
-
-            }else{
-                System.out.println(urlConnection.getResponseMessage());
-            }*/
-
-            urlConnection.disconnect();
-        } catch (Exception e) {
-
+    public void completeSave(boolean success, String message) {
+        if (success) {
+            Bundle conData = new Bundle();
+            conData.putSerializable("building", building);
+            Intent intent = new Intent();
+            intent.putExtras(conData);
+            setResult(RESULT_OK, intent);
+            finish();
+        } else {
+            showSaveFailure(message);
+            setResult(RESULT_CANCELED);
         }
-        editBuildingName.setEnabled(true);
+    }
+
+    private void showSaveFailure(String message) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Login Failed");
+        alertDialog.setMessage("Could not log in with specified username. " + message);
+        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                editBuildingName.setEnabled(true);
+            }
+        });
+        alertDialog.show();
     }
 }

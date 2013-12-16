@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class BuildingDetails implements Serializable {
+    public long id;
+
     public String address;
 
     public String name;

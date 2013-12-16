@@ -3,7 +3,6 @@ package com.github.jannop.buildingrecognition.activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -43,6 +42,7 @@ public class ShowLocationActivity extends Activity {
 
     private GeoPoint selectedLocation;
     private BuildingDetails selectedBuilding;
+    private String username;
 
     private boolean selectionModeEnabled = false;
 
@@ -64,12 +64,14 @@ public class ShowLocationActivity extends Activity {
 
         if (state == null) {
             detectLocation();
+            username = getIntent().getStringExtra("username");
         } else {
             currentLocation = (GeoPoint)state.getSerializable("currentLocation");
             currentBuilding = (BuildingDetails)state.getSerializable("currentBuilding");
             selectedLocation = (GeoPoint)state.getSerializable("selectedLocation");
             selectedBuilding = (BuildingDetails)state.getSerializable("selectedBuilding");
             selectionModeEnabled = state.getBoolean("selectionModeEnabled");
+            username = state.getString("username");
             refreshView();
             moveToActiveLocation();
         }
@@ -83,6 +85,7 @@ public class ShowLocationActivity extends Activity {
         state.putSerializable("selectedLocation", selectedLocation);
         state.putSerializable("selectedBuilding", selectedBuilding);
         state.putSerializable("selectionModeEnabled", selectionModeEnabled);
+        state.putString("username", username);
     }
 
     public void showMenu(View view) {
@@ -104,7 +107,8 @@ public class ShowLocationActivity extends Activity {
                 if (which == 0 && currentBuilding != null) {
                     Intent intent = new Intent(getApplicationContext(), EditLocationActivity.class);
                     intent.putExtra("building", currentBuilding);
-                    startActivity(intent);
+                    intent.putExtra("username", username);
+                    startActivityForResult(intent, 0);
                 }
                 if (which == 2) {
                     selectionModeEnabled = true;
@@ -114,6 +118,13 @@ public class ShowLocationActivity extends Activity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            currentBuilding = (BuildingDetails)data.getSerializableExtra("building");
+        }
     }
 
     private void createSelectionMenu(AlertDialog.Builder builder) {
