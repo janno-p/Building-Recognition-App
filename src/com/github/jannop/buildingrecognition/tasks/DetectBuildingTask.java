@@ -19,9 +19,11 @@ import java.util.ArrayList;
 
 public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, BuildingDetails> {
     private final ShowLocationActivity activity;
+    private final boolean detected;
 
-    public DetectBuildingTask(ShowLocationActivity activity) {
+    public DetectBuildingTask(ShowLocationActivity activity, boolean detected) {
         this.activity = activity;
+        this.detected = detected;
     }
 
     @Override
@@ -38,7 +40,7 @@ public class DetectBuildingTask extends AsyncTask<GeoPoint, Void, BuildingDetail
 
     @Override
     protected void onPostExecute(BuildingDetails building) {
-        activity.completeBuildingDetection(building);
+        activity.completeBuildingDetection(building, detected);
     }
 
     private static BuildingDetails parseBuildingDetails(JSONObject details) {

@@ -3,6 +3,7 @@ package com.github.jannop.buildingrecognition.activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -62,9 +63,7 @@ public class ShowLocationActivity extends Activity {
         progressDialog.setIndeterminate(true);
 
         if (state == null) {
-            progressDialog.setMessage("Detecting location");
-            progressDialog.show();
-            new DetectLocationTask(this).execute();
+            detectLocation();
         } else {
             currentLocation = (GeoPoint)state.getSerializable("currentLocation");
             currentBuilding = (BuildingDetails)state.getSerializable("currentBuilding");
@@ -109,6 +108,8 @@ public class ShowLocationActivity extends Activity {
                 }
                 if (which == 2) {
                     selectionModeEnabled = true;
+                    selectedLocation = null;
+                    selectedBuilding = null;
                     refreshView();
                 }
             }
@@ -119,17 +120,36 @@ public class ShowLocationActivity extends Activity {
         builder.setTitle("Selecting Building");
         builder.setItems(R.array.select_location_menu_items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-
+                if (which == 0) {
+                    detectLocation();
+                }
             }
         });
+    }
+
+    public void onReady(View view) {
+        currentLocation = selectedLocation;
+        selectedLocation = null;
+
+        currentBuilding = selectedBuilding;
+        selectedBuilding = null;
+
+        selectionModeEnabled = false;
+
+        refreshView();
+        moveToActiveLocation();
     }
 
     @Override
     public void onBackPressed() {
         if (selectionModeEnabled) {
-            selectionModeEnabled = false;
-            refreshView();
-            moveToActiveLocation();
+            if (currentBuilding == null) {
+                finish();
+            } else {
+                selectionModeEnabled = false;
+                refreshView();
+                moveToActiveLocation();
+            }
         } else {
             super.onBackPressed();
         }
@@ -154,14 +174,22 @@ public class ShowLocationActivity extends Activity {
         }
 
         if (location != null) {
-            identifyBuilding(location);
+            identifyBuilding(location, true);
         } else {
-            completeBuildingDetection(null);
+            completeBuildingDetection(null, true);
         }
     }
 
-    public void completeBuildingDetection(BuildingDetails building) {
+    public void completeBuildingDetection(BuildingDetails building, boolean detected) {
         progressDialog.dismiss();
+
+        if (detected && building == null) {
+            showDetectionFail();
+            if (!selectionModeEnabled) {
+                selectedLocation = currentLocation;
+                selectionModeEnabled = true;
+            }
+        }
 
         if (selectionModeEnabled) {
             selectedBuilding = building;
@@ -186,9 +214,12 @@ public class ShowLocationActivity extends Activity {
 
         mapView.getOverlays().clear();
 
-        setAddress(building);
-        setBuildingMarker(building);
-        setLocationMarker(location != null ? location : currentLocation);
+        BuildingDetails activeBuilding = building != null ? building : currentBuilding;
+        GeoPoint activeLocation = location != null ? location : currentLocation;
+
+        setAddress(activeBuilding);
+        setBuildingMarker(activeBuilding);
+        setLocationMarker(activeLocation);
 
         if (selectionModeEnabled) {
             addGestureOverlay();
@@ -270,15 +301,34 @@ public class ShowLocationActivity extends Activity {
         @Override
         public boolean longPressHelper(IGeoPoint location) {
             selectedLocation = (GeoPoint)location;
-            identifyBuilding(selectedLocation);
+            identifyBuilding(selectedLocation, false);
             refreshView();
             return false;
         }
     }
 
-    private void identifyBuilding(GeoPoint location) {
+    private void detectLocation() {
+        progressDialog.setMessage("Detecting location");
+        progressDialog.show();
+        new DetectLocationTask(this).execute();
+    }
+
+    private void identifyBuilding(GeoPoint location, boolean isDetected) {
         progressDialog.setMessage("Identifying current building");
         progressDialog.show();
-        new DetectBuildingTask(this).execute(location);
+        new DetectBuildingTask(this, isDetected).execute(location);
+    }
+
+    private void showDetectionFail() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Detection Failure");
+        alertDialog.setMessage("Can't place you in any building. Please choose one manually!");
+        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        alertDialog.show();
     }
 }

@@ -34,7 +34,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Name:"
-                    android:id="@+id/textView2"/>
+                    android:id="@+id/editBuildingName"/>
             <EditText
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
