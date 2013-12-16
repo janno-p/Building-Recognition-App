@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:gravity="center"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
-
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:hint="Enter Your Name"
+            android:hint="@string/login.hintUsername"
             android:ems="10"
-            android:id="@+id/editText"
+            android:id="@+id/login.editUsername"
             android:imeOptions="actionGo"/>
-
     <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Sign In"
-            android:id="@+id/button"
+            android:id="@+id/login.btnSignIn"
             android:onClick="onSignIn"/>
 </LinearLayout>

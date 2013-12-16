@@ -1,10 +1,8 @@
 package com.github.jannop.buildingrecognition.tasks;
 
 import android.os.AsyncTask;
-import com.github.jannop.buildingrecognition.BuildingDetails;
 import com.github.jannop.buildingrecognition.WebRequest;
 import com.github.jannop.buildingrecognition.activities.LoginActivity;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class LoginTask extends AsyncTask<String, Void, Boolean> {
@@ -20,22 +18,13 @@ public class LoginTask extends AsyncTask<String, Void, Boolean> {
         username = params[0];
 
         WebRequest request = new WebRequest("http://bldrecog.appspot.com/login?username=" + username);
-        JSONObject result = request.execute();
+        JSONObject result = request.get();
 
-        return getBooleanProperty(result, "success");
+        return result.optBoolean("success", false);
     }
 
     @Override
     protected void onPostExecute(Boolean success) {
         activity.completeLogin(success.booleanValue(), username);
-    }
-
-    private static boolean getBooleanProperty(JSONObject object, String propertyName) {
-        try {
-            if (object.has(propertyName))
-                return object.getBoolean(propertyName);
-        } catch (JSONException e) {
-        }
-        return false;
     }
 }

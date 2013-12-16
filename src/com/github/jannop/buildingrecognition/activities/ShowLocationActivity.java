@@ -28,10 +28,6 @@ import org.osmdroid.views.overlay.OverlayItem;
 import java.util.ArrayList;
 
 public class ShowLocationActivity extends Activity {
-    //private final GeoPoint testLocation = new GeoPoint(59.402474, 24.69505);
-    //private final GeoPoint testLocation = new GeoPoint(59.40298, 24.69381);
-    //private final GeoPoint testLocation = new GeoPoint(59.40364, 24.69097);
-
     private TextView txtLocation;
     private MapView mapView;
     private ProgressDialog progressDialog;

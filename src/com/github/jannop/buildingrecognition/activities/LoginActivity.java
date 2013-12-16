@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.View;
 import android.widget.EditText;
 import com.github.jannop.buildingrecognition.R;
@@ -16,22 +17,20 @@ public class LoginActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        editUsername = (EditText)findViewById(R.id.editText);
+        editUsername = (EditText)findViewById(R.id.login_editUsername);
     }
 
     public void onSignIn(View view) {
-        editUsername.setEnabled(false);
-        new LoginTask(this).execute(editUsername.getText().toString());
-
-        // TODO : Alert when no network connection (required for app engine communication
-        // and map display).
+        Editable editable = editUsername.getText();
+        if (editable != null) {
+            editUsername.setEnabled(false);
+            new LoginTask(this).execute(editable.toString());
+        }
     }
 
     public void completeLogin(boolean success, String username) {
         if (success) {
             Intent intent = new Intent(getApplicationContext(), ShowLocationActivity.class);
-            intent.putExtra("activity", "login");
             intent.putExtra("username", username);
             startActivity(intent);
             finish();

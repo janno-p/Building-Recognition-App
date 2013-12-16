@@ -12,10 +12,6 @@ import com.github.jannop.buildingrecognition.BuildingDetails;
 import com.github.jannop.buildingrecognition.R;
 import com.github.jannop.buildingrecognition.tasks.SaveBuildingTagTask;
 
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 public class EditLocationActivity extends Activity {
     private BuildingDetails building;
     private String username;

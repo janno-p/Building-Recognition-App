@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Building Recognition</string>
+    <string name="login.hintUsername">Enter Your Name</string>
     <string-array name="show_location_menu_items">
         <item>Edit</item>
         <item>Open Wiki (App 2)</item>
